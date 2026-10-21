@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Use environment variable or default
-SA_PASSWORD="${SA_PASSWORD:-Vaxi\$2025USPass}"
+# La contraseña llega por variable de entorno (docker-compose la toma de .env)
+SA_PASSWORD="${SA_PASSWORD:?Falta definir SA_PASSWORD}"
 DB_SERVER="${DB_SERVER:-database}"
 
 echo "Waiting for SQL Server at ${DB_SERVER} to be ready..."

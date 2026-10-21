@@ -1,5 +1,6 @@
 extern alias WebApi;
 
+using System.Security.Cryptography;
 using MasterNet.Application.Contracts;
 using MasterNet.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -14,7 +15,8 @@ namespace MasterNet.IntegrationTests
     // el resto de la API (controllers, validacion, autorizacion) es el real.
     public class CustomWebApplicationFactroy : WebApplicationFactory<WebApi::Program>
     {
-        public const string TestTokenKey = "clave-solo-para-tests-0123456789-abcdefghij";
+        // Clave aleatoria por ejecución: nada de claves fijas en el repositorio.
+        public static readonly string TestTokenKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
 
         private readonly string _databaseName = Guid.NewGuid().ToString();
 
