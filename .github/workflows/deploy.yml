@@ -1,0 +1,73 @@
+# Despliegue a Azure (Azure Container Apps) con azd y autenticación OIDC (sin secretos en GitHub).
+#
+# ESTADO: PREPARADO, DESACTIVADO. No crea ningún recurso mientras la variable de repositorio
+# DEPLOY_TO_AZURE no valga "true" y solo se puede lanzar a mano.
+#
+# Para activarlo, ver "Activar el despliegue a Azure" en el README: azd pipeline config crea la
+# credencial federada y las variables AZURE_* de este repositorio.
+name: Deploy
+
+on:
+  workflow_dispatch:
+  # Cuando se active, descomentar para desplegar en cada push a main:
+  # push:
+  #   branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  # Si falla algún test, no se despliega.
+  tests:
+    if: ${{ vars.DEPLOY_TO_AZURE == 'true' }}
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: tests
+    if: ${{ vars.DEPLOY_TO_AZURE == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      id-token: write # OIDC contra Entra ID
+      contents: read
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Instalar azd
+        uses: Azure/setup-azd@v2
+
+      - name: Iniciar sesión en Azure (credencial federada)
+        run: >
+          azd auth login
+          --client-id "$AZURE_CLIENT_ID"
+          --federated-credential-provider github
+          --tenant-id "$AZURE_TENANT_ID"
+
+      - name: Provisionar infraestructura (infra/)
+        run: azd provision --no-prompt
+
+      # PENDIENTE: las migraciones de la base. En Azure no corre el worker del AppHost (ver ADR 0005):
+      # hay que aplicar un script idempotente o un bundle de EF Core (dotnet ef migrations bundle) contra
+      # Azure SQL antes del deploy. Requiere resolver el acceso del runner a la base (firewall y
+      # administrador de Entra ID) y comprobar que la migración de EF coincide con el modelo actual.
+      - name: Migraciones de base de datos
+        run: |
+          echo "::error::Migraciones sin implementar. Ver el ADR 0005 y el README (Activar el despliegue a Azure)."
+          exit 1
+
+      - name: Desplegar aplicaciones
+        run: azd deploy --no-prompt
