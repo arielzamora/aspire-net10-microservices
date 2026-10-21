@@ -41,13 +41,8 @@ public class GetCourseQuery
                             .ProjectTo<CourseResponse>(_mapper.ConfigurationProvider)
                             .FirstOrDefaultAsync(cancellationToken);
 
-            if (course is null)
-            {
-                return Result<CourseResponse>.NotFound("The course does not exist");
-            }
-
             // Already projected to CourseResponse, no need to Map again.
-            return Result<CourseResponse>.Success(course);
+            return Result<CourseResponse>.Success(course!);
         }
     }
 }

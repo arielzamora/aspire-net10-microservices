@@ -3,17 +3,22 @@ using MasterNet.Persistence.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace MasterNet.Persistence;
 
 public static class SeedDatabase
 {
+    // Contraseña de los usuarios sembrados: va en user-secrets, nunca en el repositorio.
+    public const string PasswordConfigKey = "SeedAdmin:Password";
+
     public static async Task SeedRolesAndUsersAsync(DbContext context, ILogger? logger, CancellationToken cancellationToken)
     {
         try
         {
-            await SeedRolesAndUsersAsync(context.GetService<UserManager<AppUser>>(), logger, cancellationToken);
+            var password = context.GetService<IConfiguration>()[PasswordConfigKey];
+            await SeedRolesAndUsersAsync(context.GetService<UserManager<AppUser>>(), password, logger, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -21,24 +26,30 @@ public static class SeedDatabase
         }
     }
 
-    public static async Task SeedRolesAndUsersAsync(UserManager<AppUser> userManager, ILogger? logger, CancellationToken cancellationToken)
+    public static async Task SeedRolesAndUsersAsync(UserManager<AppUser> userManager, string? password, ILogger? logger, CancellationToken cancellationToken)
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                logger?.LogWarning("Seed de usuarios omitido: falta la configuración {Key} (user-secrets).", PasswordConfigKey);
+                return;
+            }
+
             if (userManager.Users.Any()) return;
 
             var userAdmin = new AppUser
             {
-                FullName = "Vaxi Drez",
-                UserName = "vaxidrez",
-                Email = "vaxi.drez@gmail.com"
+                FullName = "Ariel Zamora",
+                UserName = "azamora",
+                Email = "azamora@gmail.com"
             };
 
-            var createAdminRes = await userManager.CreateAsync(userAdmin, "Password123$");
-            await LogIdentityResultAsync(Task.FromResult(createAdminRes), logger, "Create user vaxidrez");
+            var createAdminRes = await userManager.CreateAsync(userAdmin, password);
+            await LogIdentityResultAsync(Task.FromResult(createAdminRes), logger, "Create user azamora");
             if (createAdminRes.Succeeded)
             {
-                await LogIdentityResultAsync(userManager.AddToRoleAsync(userAdmin, CustomRoles.ADMIN), logger, "Add user vaxidrez to ADMIN");
+                await LogIdentityResultAsync(userManager.AddToRoleAsync(userAdmin, CustomRoles.ADMIN), logger, "Add user azamora to ADMIN");
             }
 
             var userClient = new AppUser
@@ -48,7 +59,7 @@ public static class SeedDatabase
                 Email = "john.doe@gmail.com"
             };
 
-            var createClientRes = await userManager.CreateAsync(userClient, "Password123$");
+            var createClientRes = await userManager.CreateAsync(userClient, password);
             await LogIdentityResultAsync(Task.FromResult(createClientRes), logger, "Create user johndoe");
             if (createClientRes.Succeeded)
             {

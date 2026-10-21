@@ -24,15 +24,14 @@ namespace MasterNet.IntegrationTests
         // ---------- POST /api/courses ----------
 
         [Fact]
-        public async Task Create_WithValidData_Returns201WithLocation()
+        public async Task Create_WithValidData_Returns200AndPersistsCourse()
         {
             var response = await PostCourseAsync("Curso nuevo", "Descripcion", WriterToken());
 
-            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var id = await response.Content.ReadFromJsonAsync<Guid>();
-            Assert.EndsWith($"/api/courses/{id}", response.Headers.Location!.AbsolutePath);
 
-            var created = await _client.GetAsync(response.Headers.Location);
+            var created = await _client.GetAsync($"/api/courses/{id}");
             Assert.Equal(HttpStatusCode.OK, created.StatusCode);
             Assert.Equal("Curso nuevo", await ReadTitleAsync(created));
         }
@@ -113,14 +112,26 @@ namespace MasterNet.IntegrationTests
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
-        // ---------- GET /api/courses/{id} ----------
+        // ---------- DELETE /api/courses/{id} ----------
 
         [Fact]
-        public async Task Get_MissingCourse_Returns404()
+        public async Task Delete_ExistingCourse_Returns200AndRemovesIt()
         {
-            var response = await _client.GetAsync($"/api/courses/{MissingId}");
+            var id = await CreateCourseAsync("A borrar", "Descripcion");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            var response = await DeleteCourseAsync(id, CreateToken(PolicyMaster.COURSE_DELETE));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var list = await _client.GetStringAsync("/api/courses?pageSize=100");
+            Assert.DoesNotContain(id.ToString(), list);
+        }
+
+        [Fact]
+        public async Task Delete_WithoutDeletePolicy_Returns403()
+        {
+            var response = await DeleteCourseAsync(MissingId, WriterToken());
+
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         // ---------- helpers ----------
@@ -162,6 +173,13 @@ namespace MasterNet.IntegrationTests
             {
                 Content = JsonContent.Create(new { title, description })
             };
+            Authorize(request, token);
+            return _client.SendAsync(request);
+        }
+
+        private Task<HttpResponseMessage> DeleteCourseAsync(Guid id, string? token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"/api/courses/{id}");
             Authorize(request, token);
             return _client.SendAsync(request);
         }

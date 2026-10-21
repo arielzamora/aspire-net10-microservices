@@ -73,7 +73,8 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<MasterNetDbContext>>();
-    await SeedDatabase.SeedRolesAndUsersAsync(userManager, logger, CancellationToken.None);
+    var password = app.Configuration[SeedDatabase.PasswordConfigKey];
+    await SeedDatabase.SeedRolesAndUsersAsync(userManager, password, logger, CancellationToken.None);
 }
 //app.MapHealthChecks("/health");
 app.UseMiddleware<ExceptionMiddleware>();
