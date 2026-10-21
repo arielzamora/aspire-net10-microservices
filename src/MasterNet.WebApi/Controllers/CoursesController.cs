@@ -48,7 +48,8 @@ public class CoursesController : ControllerBase
 
     [Authorize(Policy = PolicyMaster.COURSE_WRITE)]
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.Created)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> CourseCreate(
         [FromForm] CreateCourseRequest request,
         CancellationToken cancellationToken
@@ -65,12 +66,16 @@ public class CoursesController : ControllerBase
 
         var result = await _sender.Send(command, cancellationToken);
 
-        return this.FromResult(result);
+        return result.IsSuccess
+            ? CreatedAtAction(nameof(CourseGet), new { id = result.Value }, result.Value)
+            : this.FromResult(result);
     }
 
     [Authorize(Policy = PolicyMaster.COURSE_UPDATE)]
     [HttpPut("{id}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> CourseUpdate(
         [FromBody] CourseUpdateRequest request,
         Guid id,
@@ -98,6 +103,7 @@ public class CoursesController : ControllerBase
     [AllowAnonymous]
     [HttpGet("{id}")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> CourseGet(
         Guid id,
         CancellationToken cancellationToken

@@ -6,6 +6,8 @@ using MasterNet.Infrastructure;
 using MasterNet.Infrastructure.Photos;
 using MasterNet.Infrastructure.Reports;
 using MasterNet.Persistence;
+using MasterNet.Persistence.Models;
+using Microsoft.AspNetCore.Identity;
 using MasterNet.WebApi;
 using MasterNet.WebApi.Extensions;
 using MasterNet.WebApi.Middleware;
@@ -65,6 +67,14 @@ builder.Services.AddCors(o => o.AddPolicy("corsapp", builder =>
 }));
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<MasterNetDbContext>>();
+    await SeedDatabase.SeedRolesAndUsersAsync(userManager, logger, CancellationToken.None);
+}
 //app.MapHealthChecks("/health");
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -78,3 +88,5 @@ app.UseCors("corsapp");
 app.MapControllers();
 app.MapDefaultEndpoints();
 app.Run();
+
+public partial class Program { }

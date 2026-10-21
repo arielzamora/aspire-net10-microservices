@@ -1,29 +1,57 @@
-﻿using Microsoft.AspNetCore.Identity;
+extern alias WebApi;
+
+using MasterNet.Application.Contracts;
+using MasterNet.Persistence;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace MasterNet.IntegrationTests
 {
-    public class CustomWebApplicationFactroy : WebApplicationFactory<Program>
+    // Prueba un solo servicio in-process: la base y el servicio de ratings se reemplazan,
+    // el resto de la API (controllers, validacion, autorizacion) es el real.
+    public class CustomWebApplicationFactroy : WebApplicationFactory<WebApi::Program>
     {
+        public const string TestTokenKey = "clave-solo-para-tests-0123456789-abcdefghij";
 
-        protected override IHost CreateHost(IHostBuilder builder)
+        private readonly string _databaseName = Guid.NewGuid().ToString();
+
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureHostConfiguration(configBuilder =>
+            builder.UseEnvironment("Testing");
+
+            builder.UseSetting("TokenKey", TestTokenKey);
+            // AddSqlServerDbContext exige que exista la cadena, aunque despues se reemplace el proveedor.
+            builder.UseSetting("ConnectionStrings:MasterNetDB", "Server=127.0.0.1,1433;Database=MasterNetDB;TrustServerCertificate=true");
+            builder.UseSetting("services:ratingservice:http:0", "http://localhost:5054");
+
+            builder.ConfigureServices(services =>
             {
-                configBuilder.AddInMemoryCollection([
-                    new KeyValuePair<string, string?>("ConnectionStrings:MasterNetDb","Server=127.0.0.1,1433;User ID=sa;Password=Vaxi$2025USPass;TrustServerCertificate=true;Initial Catalog=MasterNetDB"),
-                    new KeyValuePair<string, string?>("services:ratingservice:http:0","https://localhost:7160"),
-                    new KeyValuePair<string, string?>("services:ratingservice:https:0", "https://localhost:7160")
-                    ]);
+                services.RemoveAll(typeof(DbContextOptions));
+                services.RemoveAll(typeof(MasterNetDbContext));
+                var dbContextDescriptors = services
+                    .Where(d => d.ServiceType.IsGenericType
+                        && d.ServiceType.GenericTypeArguments.Contains(typeof(MasterNetDbContext)))
+                    .ToList();
 
+                foreach (var descriptor in dbContextDescriptors)
+                {
+                    services.Remove(descriptor);
+                }
 
+                services.AddDbContext<MasterNetDbContext>(options => options.UseInMemoryDatabase(_databaseName));
+
+                services.RemoveAll<IRatingServiceClient>();
+                services.AddSingleton<IRatingServiceClient, FakeRatingServiceClient>();
             });
-            return base.CreateHost(builder);
+        }
+
+        private sealed class FakeRatingServiceClient : IRatingServiceClient
+        {
+            public Task<int> GetRating(string id) => Task.FromResult(0);
+            public Task SendRating(string id, int rating) => Task.CompletedTask;
         }
     }
 }

@@ -1,0 +1,42 @@
+<EditForm Model="Model" OnValidSubmit="OnSubmit" class="card card-body shadow-sm">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label class="form-label" for="courseTitle">Title</label>
+        <InputText @bind-Value="Model.Title" id="courseTitle" class="form-control" />
+        <ValidationMessage For="() => Model.Title" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="courseDescription">Description</label>
+        <InputTextArea @bind-Value="Model.Description" id="courseDescription" class="form-control" rows="4" />
+        <ValidationMessage For="() => Model.Description" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="coursePublishedAt">Published at</label>
+        <InputDate @bind-Value="Model.PublishedAt" id="coursePublishedAt" class="form-control" />
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorMessage
+        </div>
+    }
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit" disabled="@IsSaving">
+            @(IsSaving ? "Saving..." : SubmitText)
+        </button>
+        <a class="btn btn-outline-secondary" href="courses">Cancel</a>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public CourseFormModel Model { get; set; } = default!;
+    [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public string SubmitText { get; set; } = "Save";
+    [Parameter] public EventCallback OnSubmit { get; set; }
+}

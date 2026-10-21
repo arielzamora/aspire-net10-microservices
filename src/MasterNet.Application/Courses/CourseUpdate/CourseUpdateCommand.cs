@@ -35,7 +35,7 @@ public class CourseUpdateCommand
 
             if (course is null)
             {
-                return Result<Guid>.Failure("The course does not exist");
+                return Result<Guid>.NotFound("The course does not exist");
             }
 
             course.Description = request.CourseUpdateRequest.Description;
@@ -49,6 +49,19 @@ public class CourseUpdateCommand
                         ? Result<Guid>.Success(course.Id)
                         : Result<Guid>.Failure("Errors updating the course");
 
+        }
+    }
+
+    public sealed class CourseUpdateCommandRequestValidator
+    : IValidator<CourseUpdateCommandRequest>
+    {
+        public IEnumerable<ValidationError> Validate(CourseUpdateCommandRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.CourseUpdateRequest.Title))
+                yield return new ValidationError("Title", "Title is required.");
+
+            if (string.IsNullOrWhiteSpace(req.CourseUpdateRequest.Description))
+                yield return new ValidationError("Description", "Description is required.");
         }
     }
 

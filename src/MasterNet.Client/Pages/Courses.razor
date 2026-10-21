@@ -1,9 +1,17 @@
 @page "/courses"
+@implements IDisposable
 @inject ICoursesService CoursesService
+@inject AuthTokenStore Auth
 
 <PageTitle>Courses</PageTitle>
 
-<h1 class="mb-3">Courses</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Courses</h1>
+    @if (Auth.IsAuthenticated)
+    {
+        <a class="btn btn-success" href="courses/new">New course</a>
+    }
+</div>
 
 <EditForm Model="_filters" OnValidSubmit="ApplyFiltersAsync" class="card card-body mb-4 shadow-sm">
     <div class="row g-3">
@@ -68,6 +76,10 @@ else
                     <th scope="col">Instructors</th>
                     <th scope="col">Ratings</th>
                     <th scope="col">Prices</th>
+                    @if (Auth.IsAuthenticated)
+                    {
+                        <th scope="col"></th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -82,6 +94,12 @@ else
                         <td>@course.Instructors.Count</td>
                         <td>@course.Score</td>
                         <td>@course.Prices.Count</td>
+                        @if (Auth.IsAuthenticated)
+                        {
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" href="courses/@course.Id/edit">Edit</a>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -136,8 +154,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Auth.Changed += OnAuthChanged;
+        await Auth.EnsureLoadedAsync();
         await LoadCoursesAsync();
     }
+
+    private void OnAuthChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Auth.Changed -= OnAuthChanged;
 
     private async Task ApplyFiltersAsync()
     {
@@ -201,5 +225,5 @@ else
     }
 
     private static string FormatPublishedDate(DateTime? value)
-        => value is null ? "—" : value.Value.ToLocalTime().ToString("yyyy-MM-dd");
+        => value is null ? "—" : value.Value.ToString("yyyy-MM-dd");
 }

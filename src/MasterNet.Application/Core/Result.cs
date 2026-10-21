@@ -5,6 +5,7 @@ public class Result<T>
     public bool IsSuccess { get; set; }
     public T? Value { get; set; }
     public string? Error { get; set; }
+    public bool IsNotFound { get; set; }
 
     // Optional: detailed validation errors payload
     public IReadOnlyList<ValidationError>? ValidationErrors { get; set; }
@@ -18,6 +19,13 @@ public class Result<T>
     public static Result<T> Failure(string error) => new Result<T>
     {
         IsSuccess = false,
+        Error = error
+    };
+
+    public static Result<T> NotFound(string error) => new Result<T>
+    {
+        IsSuccess = false,
+        IsNotFound = true,
         Error = error
     };
 

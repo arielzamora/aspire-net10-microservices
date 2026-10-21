@@ -13,8 +13,18 @@ public static class SeedDatabase
     {
         try
         {
-            var userManager = context.GetService<UserManager<AppUser>>();
+            await SeedRolesAndUsersAsync(context.GetService<UserManager<AppUser>>(), logger, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "Failed to seed roles and users");
+        }
+    }
 
+    public static async Task SeedRolesAndUsersAsync(UserManager<AppUser> userManager, ILogger? logger, CancellationToken cancellationToken)
+    {
+        try
+        {
             if (userManager.Users.Any()) return;
 
             var userAdmin = new AppUser

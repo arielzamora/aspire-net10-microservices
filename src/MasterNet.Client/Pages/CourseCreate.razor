@@ -1,0 +1,64 @@
+@page "/courses/new"
+@implements IDisposable
+@inject ICoursesService CoursesService
+@inject AuthTokenStore Auth
+@inject NavigationManager Navigation
+
+<PageTitle>New course</PageTitle>
+
+<h1 class="mb-3">New course</h1>
+
+@if (!Auth.IsAuthenticated)
+{
+    <div class="alert alert-warning" role="alert">
+        You must <a href="login">sign in</a> to create a course.
+    </div>
+}
+else
+{
+    <CourseForm Model="_model" IsSaving="_isSaving" ErrorMessage="@_errorMessage" SubmitText="Create" OnSubmit="SaveAsync" />
+}
+
+@code {
+    private readonly CourseFormModel _model = new();
+    private bool _isSaving;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.Changed += OnAuthChanged;
+        await Auth.EnsureLoadedAsync();
+    }
+
+    private void OnAuthChanged() => InvokeAsync(StateHasChanged);
+
+    private async Task SaveAsync()
+    {
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await CoursesService.CreateAsync(_model);
+
+            if (result.Success)
+            {
+                Navigation.NavigateTo("courses");
+                return;
+            }
+
+            _errorMessage = result.Error;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Unable to create the course at this time.";
+            Console.Error.WriteLine(ex);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    public void Dispose() => Auth.Changed -= OnAuthChanged;
+}

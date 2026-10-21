@@ -1,4 +1,5 @@
 using MasterNet.Client;
+using MasterNet.Client.Auth;
 using MasterNet.Client.Configuration;
 using MasterNet.Client.Refit;
 using MasterNet.Client.Services.Courses;
@@ -22,14 +23,24 @@ builder.Services
     .Validate(options => !string.IsNullOrWhiteSpace(options.WebApiBaseUrl), $"{ApiOptions.SectionName}:WebApiBaseUrl is required.")
     .ValidateOnStart();
 
+builder.Services.AddSingleton<AuthTokenStore>();
+builder.Services.AddTransient<AuthorizationHandler>();
+
+void ConfigureApiClient(IServiceProvider sp, HttpClient client)
+{
+    var apiOptions = sp.GetRequiredService<IOptions<ApiOptions>>().Value;
+    client.BaseAddress = new Uri(apiOptions.WebApiBaseUrl);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+}
+
 builder.Services
     .AddRefitClient<ICoursesApi>()
-    .ConfigureHttpClient((sp, client) =>
-    {
-        var apiOptions = sp.GetRequiredService<IOptions<ApiOptions>>().Value;
-        client.BaseAddress = new Uri(apiOptions.WebApiBaseUrl);
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    });
+    .ConfigureHttpClient(ConfigureApiClient)
+    .AddHttpMessageHandler<AuthorizationHandler>();
+
+builder.Services
+    .AddRefitClient<IAccountApi>()
+    .ConfigureHttpClient(ConfigureApiClient);
 
 builder.Services.AddScoped<ICoursesService, CoursesService>();
 

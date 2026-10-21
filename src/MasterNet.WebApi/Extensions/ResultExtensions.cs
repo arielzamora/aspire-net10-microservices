@@ -7,6 +7,7 @@ public static class ResultExtensions
 {
     // Maps Result<T> to a consistent IActionResult:
     // - ValidationErrors -> 400 ValidationProblemDetails
+    // - NotFound         -> 404 ProblemDetails with message
     // - Other failures   -> 400 ProblemDetails with message
     // - Success          -> 200 OK with value (or custom success status)
     public static IActionResult FromResult<T>(
@@ -26,6 +27,14 @@ public static class ResultExtensions
             return successStatusCode == StatusCodes.Status200OK
                 ? controller.Ok(result.Value)
                 : controller.StatusCode(successStatusCode, result.Value);
+        }
+
+        if (result.IsNotFound)
+        {
+            return controller.Problem(
+                detail: result.Error,
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Not Found");
         }
 
         if (result.ValidationErrors is { Count: > 0 })

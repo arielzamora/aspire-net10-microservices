@@ -42,10 +42,13 @@ builder.AddProject<Projects.MasterNet_Client>("client")
 //.WithReference(db)
 //.WaitFor(db);
 
-builder.AddProject<MasterNet_MigrationSqlService>("migrationSql")
+var migrationSql = builder.AddProject<MasterNet_MigrationSqlService>("migrationSql")
 .WithReference(db)
 .WaitFor(db)
 .WithParentRelationship(server);
+
+// La API necesita el esquema y los roles antes de arrancar (seed de usuarios en Development).
+api.WaitForCompletion(migrationSql);
 
 //builder.SubscribeToAppHostEvents();
 

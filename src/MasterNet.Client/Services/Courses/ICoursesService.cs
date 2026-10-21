@@ -6,4 +6,10 @@ namespace MasterNet.Client.Services.Courses;
 public interface ICoursesService
 {
     Task<PagedList<CourseResponse>> GetAsync(CoursesQueryParameters? parameters = null, CancellationToken cancellationToken = default);
+
+    Task<CourseResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<SaveCourseResult> CreateAsync(CourseFormModel model, CancellationToken cancellationToken = default);
+
+    Task<SaveCourseResult> UpdateAsync(Guid id, CourseFormModel model, CancellationToken cancellationToken = default);
 }

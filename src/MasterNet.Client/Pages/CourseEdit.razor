@@ -1,0 +1,120 @@
+@page "/courses/{Id:guid}/edit"
+@implements IDisposable
+@inject ICoursesService CoursesService
+@inject AuthTokenStore Auth
+@inject NavigationManager Navigation
+
+<PageTitle>Edit course</PageTitle>
+
+<h1 class="mb-3">Edit course</h1>
+
+@if (!Auth.IsAuthenticated)
+{
+    <div class="alert alert-warning" role="alert">
+        You must <a href="login">sign in</a> to edit a course.
+    </div>
+}
+else if (_isLoading)
+{
+    <div class="alert alert-info" role="status">
+        Loading course...
+    </div>
+}
+else if (_notFound)
+{
+    <div class="alert alert-warning" role="status">
+        The course does not exist. <a href="courses">Back to courses</a>
+    </div>
+}
+else if (_model is null)
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else
+{
+    <CourseForm Model="_model" IsSaving="_isSaving" ErrorMessage="@_errorMessage" SubmitText="Save changes" OnSubmit="SaveAsync" />
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private CourseFormModel? _model;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private bool _notFound;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.Changed += OnAuthChanged;
+        await Auth.EnsureLoadedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _notFound = false;
+        _errorMessage = null;
+
+        try
+        {
+            var course = await CoursesService.GetByIdAsync(Id);
+
+            if (course is null)
+            {
+                _notFound = true;
+                return;
+            }
+
+            _model = new CourseFormModel
+            {
+                Title = course.Title,
+                Description = course.Description,
+                PublishedAt = course.PublishedAt
+            };
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Unable to load the course at this time.";
+            Console.Error.WriteLine(ex);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OnAuthChanged() => InvokeAsync(StateHasChanged);
+
+    private async Task SaveAsync()
+    {
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await CoursesService.UpdateAsync(Id, _model!);
+
+            if (result.Success)
+            {
+                Navigation.NavigateTo("courses");
+                return;
+            }
+
+            _errorMessage = result.Error;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Unable to save the course at this time.";
+            Console.Error.WriteLine(ex);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    public void Dispose() => Auth.Changed -= OnAuthChanged;
+}
