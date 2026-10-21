@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
-namespace MasterNet.IntegrationTests
+namespace MasterNet.IntegrationTests.Traditional
 {
     public class CoursesEndpointsTests : IClassFixture<CustomWebApplicationFactroy>
     {

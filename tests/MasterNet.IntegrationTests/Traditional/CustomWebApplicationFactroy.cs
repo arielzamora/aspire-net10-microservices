@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace MasterNet.IntegrationTests
+namespace MasterNet.IntegrationTests.Traditional
 {
     // Prueba un solo servicio in-process: la base y el servicio de ratings se reemplazan,
     // el resto de la API (controllers, validacion, autorizacion) es el real.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-namespace MasterNet.IntegrationTests
+namespace MasterNet.IntegrationTests.Traditional
 {
     public class IntegrationTests
     {
