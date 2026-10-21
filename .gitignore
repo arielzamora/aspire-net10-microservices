@@ -491,3 +491,4 @@ $RECYCLE.BIN/
 # Material del curso y basura de trabajo
 resources/
 *.bak
+.azure
