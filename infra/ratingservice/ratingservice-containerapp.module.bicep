@@ -57,6 +57,34 @@ resource ratingservice 'Microsoft.App/containerApps@2025-10-02-preview' = {
     template: {
       containers: [
         {
+          probes: [
+            {
+              failureThreshold: 3
+              httpGet: {
+                path: '/alive'
+                port: int(ratingservice_containerport)
+                scheme: 'HTTP'
+              }
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              successThreshold: 1
+              timeoutSeconds: 1
+              type: 'Liveness'
+            }
+            {
+              failureThreshold: 3
+              httpGet: {
+                path: '/health'
+                port: int(ratingservice_containerport)
+                scheme: 'HTTP'
+              }
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              successThreshold: 1
+              timeoutSeconds: 1
+              type: 'Readiness'
+            }
+          ]
           image: ratingservice_containerimage
           name: 'ratingservice'
           env: [
@@ -91,6 +119,10 @@ resource ratingservice 'Microsoft.App/containerApps@2025-10-02-preview' = {
             {
               name: 'CACHE_URI'
               secretRef: 'cache-uri'
+            }
+            {
+              name: 'HealthChecks__Expose'
+              value: 'true'
             }
           ]
         }

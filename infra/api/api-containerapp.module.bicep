@@ -55,6 +55,34 @@ resource api 'Microsoft.App/containerApps@2025-10-02-preview' = {
     template: {
       containers: [
         {
+          probes: [
+            {
+              failureThreshold: 3
+              httpGet: {
+                path: '/alive'
+                port: int(api_containerport)
+                scheme: 'HTTP'
+              }
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              successThreshold: 1
+              timeoutSeconds: 1
+              type: 'Liveness'
+            }
+            {
+              failureThreshold: 3
+              httpGet: {
+                path: '/health'
+                port: int(api_containerport)
+                scheme: 'HTTP'
+              }
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              successThreshold: 1
+              timeoutSeconds: 1
+              type: 'Readiness'
+            }
+          ]
           image: api_containerimage
           name: 'api'
           env: [
@@ -113,6 +141,10 @@ resource api 'Microsoft.App/containerApps@2025-10-02-preview' = {
             {
               name: 'TokenKey'
               secretRef: 'tokenkey'
+            }
+            {
+              name: 'HealthChecks__Expose'
+              value: 'true'
             }
             {
               name: 'AZURE_CLIENT_ID'

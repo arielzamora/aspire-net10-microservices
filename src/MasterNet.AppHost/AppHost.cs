@@ -61,6 +61,19 @@ if (isPublish)
     // El navegador llama a la API directamente: tiene que ser accesible desde fuera.
     api.WithHttpEndpoint(name: "http")
        .WithExternalHttpEndpoints();
+    ratingService.WithHttpEndpoint(name: "http");
+
+    // Probes de Container Apps: /alive (liveness) y /health (readiness). Fuera de Development los endpoints
+    // se exponen solo con HealthChecks:Expose y responden únicamente el estado (ADR 0003).
+    // WithHttpProbe es una API experimental de Aspire (ASPIREPROBES001): se acepta de forma explícita.
+#pragma warning disable ASPIREPROBES001
+    foreach (var service in new[] { api, ratingService })
+    {
+        service.WithEnvironment("HealthChecks__Expose", "true")
+            .WithHttpProbe(ProbeType.Liveness, "/alive")
+            .WithHttpProbe(ProbeType.Readiness, "/health");
+    }
+#pragma warning restore ASPIREPROBES001
 
     // El cliente Blazor WebAssembly son archivos estáticos: se publica como contenedor nginx
     // (ver src/MasterNet.Client/Dockerfile). La URL de la API se inyecta al arrancar el contenedor.
