@@ -1,9 +1,48 @@
 # MasterNet — catálogo de cursos con .NET Aspire
 
-Solución .NET 10 orquestada con .NET Aspire: Web API (Clean Architecture + CQRS), cliente Blazor WebAssembly,
-SQL Server, Redis y un servicio de calificaciones. Desde el cliente se pueden listar, crear, editar y borrar cursos.
+Solución .NET 10 orquestada con .NET Aspire que muestra una arquitectura distribuida completa: Web API con Clean Architecture y
+CQRS, cliente Blazor WebAssembly, SQL Server, Redis y un servicio de calificaciones. Desde el cliente se pueden listar, crear,
+editar y borrar cursos. Incluye observabilidad con OpenTelemetry, health checks y tests en dos enfoques.
 
-> Este README es la versión mínima de "cómo correrlo". Arquitectura, ADRs y despliegue a Azure están en preparación.
+<!-- Captura del dashboard de Aspire con trazas: agregar docs/img/dashboard-trazas.png y descomentar la línea siguiente.
+![Dashboard de Aspire con trazas](docs/img/dashboard-trazas.png)
+-->
+
+```mermaid
+flowchart TB
+    browser(["Navegador"])
+
+    subgraph aspire["AppHost de Aspire"]
+        client["client<br/>Blazor WebAssembly + Refit"]
+        api["api<br/>ASP.NET Core Web API<br/>Clean Architecture + CQRS<br/>JWT + políticas"]
+        rating["ratingservice<br/>Minimal API"]
+        migration["migrationSql<br/>worker: ejecuta el script SQL"]
+        sql[("server / MasterNetDB<br/>SQL Server")]
+        redis[("cache<br/>Redis")]
+    end
+
+    dashboard["Dashboard de Aspire"]
+
+    browser -->|HTTP| client
+    client -->|"HTTP + Bearer (Refit)"| api
+    api -->|EF Core| sql
+    api -->|"HTTP · service discovery"| rating
+    rating -->|StackExchange.Redis| redis
+    migration -->|"CreateDatabaseAndSeed.sql"| sql
+    api -. "espera migrationSql" .-> migration
+
+    api -.->|OTLP| dashboard
+    rating -.->|OTLP| dashboard
+```
+
+Más diagramas (contexto C4 y local vs. Azure) en [docs/diagramas.md](docs/diagramas.md).
+
+## Stack
+
+.NET 10 · .NET Aspire 13 · ASP.NET Core Web API · Blazor WebAssembly · Refit · EF Core (SQL Server) · Redis ·
+OpenTelemetry · xUnit, Moq y `Aspire.Hosting.Testing`.
+
+La capa de aplicación usa un mediador y un mapeador propios (`libs/Core.MediatOR`, `libs/Core.Mappy`).
 
 ## Requisitos
 
@@ -56,17 +95,64 @@ En el cliente entrá por **Sign in**; con el admin aparecen los botones **New co
 
 > La base de datos se **recrea en cada arranque** del AppHost (`Database/CreateDatabaseAndSeed.sql`), así que los cursos que crees no persisten entre ejecuciones.
 
-## Tests
+## Base del curso / Extensiones propias
 
-```bash
-dotnet test tests/MasterNet.Application.UnitTests
-dotnet test tests/MasterNet.IntegrationTests
-```
+**Base del curso** (lo que cubre el curso en el que se apoya esta solución):
 
-- `MasterNet.IntegrationTests` incluye dos enfoques: tests de la API con `WebApplicationFactory` (rápidos, en memoria, sin Docker)
-  y un test de punta a punta con `Aspire.Hosting.Testing` (levanta toda la topología, **requiere Docker**; la primera vez puede tardar por la descarga de imágenes).
-- Solo los de la API: `dotnet test tests/MasterNet.IntegrationTests --filter "FullyQualifiedName~CoursesEndpointsTests"`.
-- No necesitan configuración previa: generan sus propias claves.
+- AppHost y ServiceDefaults; orquestación de servicios, Redis y SQL Server, service discovery.
+- Migraciones de base de datos de tres formas: Docker, EF Core y scripts SQL ([ADR 0005](docs/adr/0005-estrategia-de-migraciones.md)).
+- OpenTelemetry: logs, métricas y trazas en el dashboard de Aspire ([ADR 0002](docs/adr/0002-observabilidad-opentelemetry.md)).
+- Health checks ([ADR 0003](docs/adr/0003-health-checks-liveness-y-readiness.md)).
+- Lifecycle eventing del AppHost y eventing sobre un recurso ([ADR 0004](docs/adr/0004-lifecycle-eventing-vs-migration-worker.md)).
+- Tests de integración de dos formas: `WebApplicationFactory` y `Aspire.Hosting.Testing` ([ADR 0006](docs/adr/0006-estrategia-de-testing.md)).
+- Backend de cursos con comandos de alta, actualización y baja, y un cliente Blazor que solo listaba.
+
+**Extensiones propias** (agregadas sobre esa base):
+
+- Alta, edición y baja de cursos en Blazor, con validación y confirmación al borrar.
+- Login mínimo con JWT en el cliente y políticas en la API ([ADR 0009](docs/adr/0009-autenticacion-y-autorizacion.md)).
+- Secretos como parámetros de Aspire, generados o pedidos al primer arranque, sin nada versionado ([ADR 0008](docs/adr/0008-gestion-de-secretos.md)).
+- Respuesta `404` en la actualización de un curso inexistente y validación de la actualización.
+- Tests de los endpoints de cursos, tests unitarios de los handlers y un flujo de punta a punta con el AppHost completo.
+- Limpieza de restos del template, ADRs y diagramas.
+
+### Demos del curso que se conservan
+
+| Qué | Para qué sirve |
+|---|---|
+| `GET /Demo/getstring`, `GET /Demo/Environment` | Ejemplo de controller y de configuración por entorno (`MyVariable`) |
+| `GET /make-healthy`, `GET /make-unhealthy` + `MyHealtCheck` | Cambian a mano el estado del health check para ver cómo reacciona Aspire |
+| `GET /api/devices`, `/api/ratings` | Ejemplos de especificaciones de consulta y de llamada al `RatingService` |
+| `MasterNet.MigrationService` (EF Core) | Alternativa de migración con EF; está comentada en el AppHost |
+| `docker-compose.yml` | Migración con Docker, sin Aspire |
+| `SubscribeToAppHostEvents` / `SubscribeToResourcetEvents` | Eventos del ciclo de vida del AppHost (solo escriben logs) |
+
+## Testing
+
+| | Tradicional (`WebApplicationFactory`) | `Aspire.Hosting.Testing` |
+|---|---|---|
+| Alcance | Un servicio, in-process | Toda la topología del AppHost, out-of-process |
+| Dependencias | Reemplazables: DI, mocks, base en memoria o Testcontainers | Reales: los mismos contenedores que en local |
+| Control interno | Alto (se puede intervenir el contenedor de DI) | Caja negra: solo por HTTP y estado de los recursos |
+| Velocidad | Rápido | Más lento; requiere Docker |
+| Qué valida | Lógica y contrato de una API | Cableado real y orden de arranque |
+
+Estrategia: muchos tests tradicionales y unitarios para la lógica y los contratos; pocos tests con `Aspire.Hosting.Testing` para los flujos de punta a punta.
+
+| Suite | Dónde | Comando |
+|---|---|---|
+| Unitarios (handlers, validadores, behavior) | `tests/MasterNet.Application.UnitTests` | `dotnet test tests/MasterNet.Application.UnitTests` |
+| Integración tradicional (endpoints de cursos) | `tests/MasterNet.IntegrationTests/Traditional` | `dotnet test tests/MasterNet.IntegrationTests --filter "FullyQualifiedName~Traditional"` |
+| Integración con Aspire (listar → crear → editar → ver) | `tests/MasterNet.IntegrationTests/AspireTesting` | `dotnet test tests/MasterNet.IntegrationTests --filter "FullyQualifiedName~AspireTesting"` |
+
+- Todo junto: `dotnet test`.
+- Los tests de Aspire requieren Docker; la primera vez pueden tardar por la descarga de imágenes (timeout de 180 s).
+- No necesitan configuración previa: generan sus propias claves y contraseñas.
+
+## Documentación
+
+- [Decisiones de arquitectura (ADRs)](docs/adr/README.md)
+- [Diagramas](docs/diagramas.md)
 
 ## Configuración opcional
 
@@ -79,3 +165,21 @@ dotnet test tests/MasterNet.IntegrationTests
 ## Secretos
 
 No hay secretos versionados. En desarrollo se guardan en user-secrets (los genera o los pide Aspire); en Azure serán parámetros del despliegue.
+
+## Qué cambiaría para producción
+
+- **Autenticación:** validar emisor y audiencia del JWT, acortar su vigencia (hoy 7 días) y agregar refresh token; guardar el token del cliente con un esquema más robusto que `sessionStorage`.
+- **CORS:** hoy permite cualquier origen; restringirlo al dominio del cliente.
+- **Base de datos:** el script actual **borra y recrea** la base en cada arranque. En producción usar un script idempotente o un bundle de EF Core ([ADR 0005](docs/adr/0005-estrategia-de-migraciones.md)) y Azure SQL ([ADR 0007](docs/adr/0007-sql-server-local-y-azure-sql.md)).
+- **Usuarios:** el seed de usuarios de prueba solo corre en Development; en producción el primer administrador debe aprovisionarse por otro camino.
+- **Health checks:** exponer `/alive` y `/health` solo para las probes y sin detalle ([ADR 0003](docs/adr/0003-health-checks-liveness-y-readiness.md)); retirar los endpoints de demo.
+- **Secretos:** parámetros del despliegue y Managed Identity en lugar de user-secrets; rotar el `TokenKey` que quedó en el primer commit.
+- **Redis:** el contenedor pierde su estado; para algo más que una demo, un servicio administrado.
+- **Observabilidad:** activar el exportador de Azure Monitor / Application Insights y registrar las fuentes de los workers de migración ([ADR 0002](docs/adr/0002-observabilidad-opentelemetry.md)).
+
+## Roadmap
+
+- 🚧 **Siguiente:** CI/CD con GitHub Actions (OIDC federado) y despliegue a Azure Container Apps con `azd` (Azure SQL serverless).
+- Mensajería: publicar `CourseChanged` con RabbitMQ o Azure Service Bus y transactional outbox.
+- gRPC para la comunicación interna entre servicios.
+- Integración opcional con Azure AI Foundry en C#.
