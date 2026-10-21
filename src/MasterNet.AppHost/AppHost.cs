@@ -1,3 +1,5 @@
+using Aspire.Hosting.Azure;
+using Azure.Provisioning.AppContainers;
 using MasterNet.AppHost.AppHostEvents;
 using Projects;
 
@@ -75,13 +77,19 @@ if (isPublish)
     }
 #pragma warning restore ASPIREPROBES001
 
+    // Escala a cero cuando no hay tráfico (Redis queda siempre encendido: es el estado de los ratings).
+    Action<AzureResourceInfrastructure, ContainerApp> scaleToZero = (_, app) => app.Template.Scale.MinReplicas = 0;
+    api.PublishAsAzureContainerApp(scaleToZero);
+    ratingService.PublishAsAzureContainerApp(scaleToZero);
+
     // El cliente Blazor WebAssembly son archivos estáticos: se publica como contenedor nginx
     // (ver src/MasterNet.Client/Dockerfile). La URL de la API se inyecta al arrancar el contenedor.
     builder.AddDockerfile("client", "../MasterNet.Client")
         .WithHttpEndpoint(targetPort: 80)
         .WithExternalHttpEndpoints()
         .WithEnvironment("API_URL", api.GetEndpoint("http"))
-        .WaitFor(api);
+        .WaitFor(api)
+        .PublishAsAzureContainerApp(scaleToZero);
 }
 else
 {

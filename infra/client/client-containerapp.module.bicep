@@ -44,7 +44,7 @@ resource client 'Microsoft.App/containerApps@2025-07-01' = {
         }
       ]
       scale: {
-        minReplicas: 1
+        minReplicas: 0
       }
     }
   }

@@ -128,7 +128,7 @@ resource ratingservice 'Microsoft.App/containerApps@2025-10-02-preview' = {
         }
       ]
       scale: {
-        minReplicas: 1
+        minReplicas: 0
       }
     }
   }
