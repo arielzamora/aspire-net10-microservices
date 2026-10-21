@@ -6,9 +6,7 @@ Solución .NET 10 orquestada con .NET Aspire que muestra una arquitectura distri
 CQRS, cliente Blazor WebAssembly, SQL Server, Redis y un servicio de calificaciones. Desde el cliente se pueden listar, crear,
 editar y borrar cursos. Incluye observabilidad con OpenTelemetry, health checks y tests en dos enfoques.
 
-<!-- Captura del dashboard de Aspire con trazas: agregar docs/img/dashboard-trazas.png y descomentar la línea siguiente.
-![Dashboard de Aspire con trazas](docs/img/dashboard-trazas.png)
--->
+![Dashboard de Aspire: trazas, topología, recursos, consulta SQL y logs](docs/img/dashboard-aspire.png)
 
 ```mermaid
 flowchart TB
