@@ -34,5 +34,20 @@ namespace MasterNet.IntegrationTests.AspireTesting
                 await _app.DisposeAsync();
             }
         }
+
+        // Si una llamada falla, el mensaje incluye el cuerpo de la respuesta (en Development la API devuelve el detalle
+        // del error): en CI no hay otra forma de ver qué pasó dentro de la API.
+        public async Task<HttpResponseMessage> EnsureSuccessAsync(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                return response;
+            }
+
+            var body = await response.Content.ReadAsStringAsync();
+            throw new Xunit.Sdk.XunitException(
+                $"HTTP {(int)response.StatusCode} en {response.RequestMessage?.Method} {response.RequestMessage?.RequestUri}{Environment.NewLine}" +
+                $"Cuerpo: {body}");
+        }
     }
 }

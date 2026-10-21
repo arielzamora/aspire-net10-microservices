@@ -18,7 +18,7 @@ namespace MasterNet.IntegrationTests.AspireTesting
         [Fact]
         public async Task GetCoursesShouldReturnOk()
         {
-            var response = await _fixture.ApiClient.GetAsync("/api/courses");
+            var response = await _fixture.EnsureSuccessAsync(await _fixture.ApiClient.GetAsync("/api/courses"));
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -29,46 +29,42 @@ namespace MasterNet.IntegrationTests.AspireTesting
             var api = _fixture.ApiClient;
 
             // listar
-            var before = await GetTotalCountAsync(api);
+            var before = await GetTotalCountAsync();
 
             // iniciar sesión como el admin sembrado
-            var login = await api.PostAsJsonAsync("/api/account/login", new
+            var login = await _fixture.EnsureSuccessAsync(await api.PostAsJsonAsync("/api/account/login", new
             {
                 email = "azamora@gmail.com",
                 password = _fixture.SeedAdminPassword
-            });
-            login.EnsureSuccessStatusCode();
+            }));
             var token = (await ReadJsonAsync(login)).GetProperty("token").GetString();
             api.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             // crear
-            var create = await api.PostAsync("/api/courses", new FormUrlEncodedContent(new Dictionary<string, string>
+            var create = await _fixture.EnsureSuccessAsync(await api.PostAsync("/api/courses", new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["title"] = "Curso de punta a punta",
                 ["description"] = "Creado por el test del AppHost"
-            }));
-            create.EnsureSuccessStatusCode();
+            })));
             var id = await create.Content.ReadFromJsonAsync<Guid>();
 
             // editar
-            var update = await api.PutAsJsonAsync($"/api/courses/{id}", new
+            await _fixture.EnsureSuccessAsync(await api.PutAsJsonAsync($"/api/courses/{id}", new
             {
                 title = "Curso de punta a punta (editado)",
                 description = "Editado por el test del AppHost"
-            });
-            update.EnsureSuccessStatusCode();
+            }));
 
             // ver
-            var view = await api.GetAsync($"/api/courses/{id}");
+            var view = await _fixture.EnsureSuccessAsync(await api.GetAsync($"/api/courses/{id}"));
             Assert.Equal(HttpStatusCode.OK, view.StatusCode);
             Assert.Equal("Curso de punta a punta (editado)", (await ReadJsonAsync(view)).GetProperty("title").GetString());
-            Assert.Equal(before + 1, await GetTotalCountAsync(api));
+            Assert.Equal(before + 1, await GetTotalCountAsync());
         }
 
-        private static async Task<int> GetTotalCountAsync(HttpClient api)
+        private async Task<int> GetTotalCountAsync()
         {
-            var response = await api.GetAsync("/api/courses?pageSize=5");
-            response.EnsureSuccessStatusCode();
+            var response = await _fixture.EnsureSuccessAsync(await _fixture.ApiClient.GetAsync("/api/courses?pageSize=5"));
             return (await ReadJsonAsync(response)).GetProperty("totalCount").GetInt32();
         }
 
