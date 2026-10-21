@@ -16,4 +16,4 @@ public sealed record class UpdateCourseRequest
     public DateTime? PublishedAt { get; init; }
 }
 
-public sealed record class SaveCourseResult(bool Success, Guid? Id = null, string? Error = null);
+public sealed record class CourseOperationResult(bool Success, Guid? Id = null, string? Error = null);

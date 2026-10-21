@@ -9,7 +9,9 @@ public interface ICoursesService
 
     Task<CourseResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<SaveCourseResult> CreateAsync(CourseFormModel model, CancellationToken cancellationToken = default);
+    Task<CourseOperationResult> CreateAsync(CourseFormModel model, CancellationToken cancellationToken = default);
 
-    Task<SaveCourseResult> UpdateAsync(Guid id, CourseFormModel model, CancellationToken cancellationToken = default);
+    Task<CourseOperationResult> UpdateAsync(Guid id, CourseFormModel model, CancellationToken cancellationToken = default);
+
+    Task<CourseOperationResult> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

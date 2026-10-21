@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject ICoursesService CoursesService
 @inject AuthTokenStore Auth
+@inject IJSRuntime JS
 
 <PageTitle>Courses</PageTitle>
 
@@ -46,6 +47,13 @@
         </div>
     </div>
 </EditForm>
+
+@if (!string.IsNullOrWhiteSpace(_actionError))
+{
+    <div class="alert alert-danger" role="alert">
+        @_actionError
+    </div>
+}
 
 @if (_isLoading)
 {
@@ -98,6 +106,10 @@ else
                         {
                             <td class="text-end">
                                 <a class="btn btn-sm btn-outline-primary" href="courses/@course.Id/edit">Edit</a>
+                                <button class="btn btn-sm btn-outline-danger" type="button"
+                                        @onclick="() => DeleteCourseAsync(course)" disabled="@_isLoading">
+                                    Delete
+                                </button>
                             </td>
                         }
                     </tr>
@@ -147,6 +159,7 @@ else
     private PagedList<CourseResponse>? _courses;
     private bool _isLoading;
     private string? _errorMessage;
+    private string? _actionError;
 
     private bool HasCourses => _courses is not null && _courses.Items.Count > 0;
     private bool CanGoPrevious => _courses is not null && _courses.CurrentPage > 1;
@@ -190,6 +203,41 @@ else
 
         _filters.PageNumber = targetPage;
         await LoadCoursesAsync();
+    }
+
+    private async Task DeleteCourseAsync(CourseResponse course)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Delete \"{course.Title}\"? This cannot be undone.");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        _actionError = null;
+
+        try
+        {
+            var result = await CoursesService.DeleteAsync(course.Id);
+
+            if (!result.Success)
+            {
+                _actionError = result.Error;
+                return;
+            }
+
+            // si se borró el último de la página, se vuelve a la anterior
+            if (_courses is { CurrentPage: > 1 } && _courses.Items.Count == 1)
+            {
+                _filters.PageNumber = _courses.CurrentPage - 1;
+            }
+
+            await LoadCoursesAsync();
+        }
+        catch (Exception ex)
+        {
+            _actionError = "Unable to delete the course at this time.";
+            Console.Error.WriteLine(ex);
+        }
     }
 
     private async Task LoadCoursesAsync()

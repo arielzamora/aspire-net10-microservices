@@ -18,4 +18,7 @@ public interface ICoursesApi
 
     [Put("/api/courses/{id}")]
     Task<IApiResponse<Guid>> UpdateCourseAsync(Guid id, [Body] UpdateCourseRequest request, CancellationToken cancellationToken = default);
+
+    [Delete("/api/courses/{id}")]
+    Task<IApiResponse<bool>> DeleteCourseAsync(Guid id, CancellationToken cancellationToken = default);
 }

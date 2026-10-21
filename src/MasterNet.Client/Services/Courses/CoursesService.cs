@@ -34,7 +34,7 @@ public sealed class CoursesService : ICoursesService
         return response.Content;
     }
 
-    public async Task<SaveCourseResult> CreateAsync(CourseFormModel model, CancellationToken cancellationToken = default)
+    public async Task<CourseOperationResult> CreateAsync(CourseFormModel model, CancellationToken cancellationToken = default)
     {
         var request = new CreateCourseRequest
         {
@@ -47,7 +47,7 @@ public sealed class CoursesService : ICoursesService
         return ToResult(response);
     }
 
-    public async Task<SaveCourseResult> UpdateAsync(Guid id, CourseFormModel model, CancellationToken cancellationToken = default)
+    public async Task<CourseOperationResult> UpdateAsync(Guid id, CourseFormModel model, CancellationToken cancellationToken = default)
     {
         var request = new UpdateCourseRequest
         {
@@ -60,8 +60,14 @@ public sealed class CoursesService : ICoursesService
         return ToResult(response);
     }
 
-    private static SaveCourseResult ToResult(global::Refit.IApiResponse<Guid> response)
+    public async Task<CourseOperationResult> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        using var response = await _coursesApi.DeleteCourseAsync(id, cancellationToken);
+        return ToResult(response);
+    }
+
+    private static CourseOperationResult ToResult<T>(global::Refit.IApiResponse<T> response)
         => response.IsSuccessStatusCode
-            ? new SaveCourseResult(true, response.Content)
-            : new SaveCourseResult(false, Error: ApiErrors.Describe(response.StatusCode, response.Error?.Content));
+            ? new CourseOperationResult(true, response.Content is Guid id ? id : null)
+            : new CourseOperationResult(false, Error: ApiErrors.Describe(response.StatusCode, response.Error?.Content));
 }
