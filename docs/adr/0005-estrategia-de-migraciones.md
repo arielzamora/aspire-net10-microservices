@@ -24,6 +24,16 @@ cada una y qué se usaría fuera de desarrollo.
   **idempotente** (por ejemplo, generado con `dotnet ef migrations script --idempotent`) o un **bundle** de EF Core
   (`dotnet ef migrations bundle`), ejecutado como paso del pipeline antes del despliegue.
 
+## Estado en Azure (pendiente)
+
+* En Azure el AppHost **no** incluye el worker de migraciones, así que la base queda vacía hasta que se aplique el esquema.
+  El workflow `deploy.yml` tiene un paso de migraciones que falla a propósito hasta que esté resuelto.
+* Azure SQL se genera con **solo autenticación Entra ID** (`azureADOnlyAuthentication`): no hay usuario ni contraseña de SQL.
+  La identidad de la API recibe `db_owner` mediante un script de despliegue; el runner del pipeline debería conectarse como
+  administrador de Entra y tener acceso por red (el firewall generado solo permite servicios de Azure).
+* Antes de usar `dotnet ef migrations script --idempotent` o un bundle hay que comprobar que `InitialMigration`
+  coincide con el modelo actual, porque el esquema de desarrollo sale del script SQL y no de EF.
+
 ## Consecuencias
 
 * En desarrollo los datos creados no persisten entre arranques del AppHost.

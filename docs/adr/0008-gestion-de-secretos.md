@@ -22,6 +22,10 @@ Los secretos son **parámetros de Aspire** que se resuelven según su tipo (`Mas
 La API recibe `token-key` y `seed-admin-password` como variables de entorno (`TokenKey`, `SeedAdmin__Password`).
 La contraseña del admin no se genera al azar porque la persona que usa la app necesita conocerla para iniciar sesión.
 
+En modo publicación (Azure) `token-key` y la contraseña de Redis (`cache_password`) pasan a ser parámetros del despliegue
+(`AZURE_TOKEN_KEY` y `AZURE_CACHE_PASSWORD` en `infra/main.parameters.json`) y la API usa identidad administrada para Azure SQL.
+`seed-admin-password` no se publica: el seed de usuarios solo corre en Development.
+
 Los tests no dependen de secretos: generan claves aleatorias por ejecución.
 `docker-compose` lee `SA_PASSWORD` de un `.env` local que no se versiona (`.env.example` documenta la variable).
 

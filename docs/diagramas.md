@@ -53,7 +53,7 @@ flowchart TB
 
 ## Local vs. Azure
 
-El lado Azure es el **objetivo de la Parte 2.3** y todavía no está implementado.
+El lado Azure está **preparado** (`infra/`, `azure.yaml` y `deploy.yml`) pero **todavía no se desplegó**.
 
 ```mermaid
 flowchart LR
@@ -73,14 +73,14 @@ flowchart LR
         l_secrets -.-> l_apphost
     end
 
-    subgraph azure["Azure (objetivo, Parte 2.3)"]
+    subgraph azure["Azure (preparado, sin desplegar)"]
         direction TB
         gh["GitHub Actions<br/>OIDC federado + azd"]
-        aca["Azure Container Apps<br/>api · client · ratingservice<br/>escala a cero"]
-        a_sql[("Azure SQL<br/>serverless con auto-pausa")]
+        aca["Azure Container Apps<br/>api · ratingservice · client (nginx)<br/>escalan a cero · probes /alive y /health"]
+        a_sql[("Azure SQL<br/>serverless, auto-pausa<br/>solo Entra ID")]
         a_redis[("Redis<br/>contenedor en ACA (demo)")]
         a_mon["Azure Monitor /<br/>Application Insights"]
-        a_params["Parámetros de azd<br/>y Managed Identity"]
+        a_params["Parámetros de azd<br/>e identidad administrada"]
 
         gh -->|"build · tests · migraciones · deploy"| aca
         aca --> a_sql

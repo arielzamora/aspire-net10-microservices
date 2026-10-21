@@ -15,10 +15,18 @@ bajo para una demo.
 
 ## Decisión
 
-* **Local (hoy):** `AddSqlServer("server", port: 1433)` con lifetime persistente. Aspire genera la contraseña y la guarda en
-  user-secrets (ver [0008](0008-gestion-de-secretos.md)).
-* **Nube (propuesto):** `AddAzureSqlServer().RunAsContainer()`: el mismo modelo de AppHost corre como contenedor en local y se
-  aprovisiona como **Azure SQL serverless con auto-pausa** al desplegar. Un único código de AppHost para ambos casos.
+* Se usa `AddAzureSqlServer("server").RunAsContainer(...)` en el AppHost: el mismo modelo corre como **contenedor** en local
+  (puerto 1433, lifetime persistente; Aspire genera la contraseña y la guarda en user-secrets, ver
+  [0008](0008-gestion-de-secretos.md)) y se aprovisiona como **Azure SQL serverless con auto-pausa** al publicar.
+  Un único código de AppHost para ambos casos.
+* El modo local está en uso y probado (los tests de Aspire levantan ese contenedor). La parte de Azure está generada pero sin desplegar.
+
+## Implementación (generada, sin desplegar)
+
+`infra/server/server.module.bicep` (generado con `azd infra gen`) define la base `MasterNetDB` con `useFreeLimit: true`,
+`freeLimitExhaustionBehavior: 'AutoPause'` y SKU `GP_S_Gen5_2` (serverless). El servidor solo admite autenticación Entra ID y la
+API se conecta con identidad administrada (`Authentication="Active Directory Default"`), sin contraseña. Todo esto está validado
+con `az bicep build`, pero **no se desplegó**: el estado de la decisión sigue siendo "propuesto".
 
 ## Consecuencias
 

@@ -6,7 +6,7 @@ Decisiones de arquitectura de la solución, en formato [MADR](https://adr.github
 |---|---|---|
 | [0001](0001-usar-dotnet-aspire.md) | Usar .NET Aspire para orquestar la solución | Aceptado |
 | [0002](0002-observabilidad-opentelemetry.md) | Observabilidad con OpenTelemetry y exportador OTLP | Aceptado |
-| [0003](0003-health-checks-liveness-y-readiness.md) | Health checks: liveness vs. readiness y su exposición | Propuesto |
+| [0003](0003-health-checks-liveness-y-readiness.md) | Health checks: liveness vs. readiness y su exposición | Aceptado |
 | [0004](0004-lifecycle-eventing-vs-migration-worker.md) | Lifecycle eventing vs. migration worker | Aceptado |
 | [0005](0005-estrategia-de-migraciones.md) | Estrategia de migraciones de base de datos | Aceptado (desarrollo) / Propuesto (producción) |
 | [0006](0006-estrategia-de-testing.md) | Testing: integración tradicional vs. `Aspire.Hosting.Testing` | Aceptado |

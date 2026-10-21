@@ -1,5 +1,7 @@
 # MasterNet — catálogo de cursos con .NET Aspire
 
+[![CI](https://github.com/arielzamora/aspire-net10-microservices/actions/workflows/ci.yml/badge.svg)](https://github.com/arielzamora/aspire-net10-microservices/actions/workflows/ci.yml)
+
 Solución .NET 10 orquestada con .NET Aspire que muestra una arquitectura distribuida completa: Web API con Clean Architecture y
 CQRS, cliente Blazor WebAssembly, SQL Server, Redis y un servicio de calificaciones. Desde el cliente se pueden listar, crear,
 editar y borrar cursos. Incluye observabilidad con OpenTelemetry, health checks y tests en dos enfoques.
@@ -148,6 +150,37 @@ Estrategia: muchos tests tradicionales y unitarios para la lógica y los contrat
 - Todo junto: `dotnet test`.
 - Los tests de Aspire requieren Docker; la primera vez pueden tardar por la descarga de imágenes (timeout de 180 s).
 - No necesitan configuración previa: generan sus propias claves y contraseñas.
+- **CI:** [`.github/workflows/ci.yml`](.github/workflows/ci.yml) compila y corre las tres suites como pasos separados
+  (unitarios, integración tradicional e integración con Aspire), en cada push a `main` y en cada pull request,
+  así se ve cuál falla y cuánto tarda cada una.
+
+## Despliegue a Azure (preparado, aún sin ejecutar)
+
+La solución está lista para publicarse en Azure Container Apps con `azd`, pero **todavía no se desplegó**: no hay recursos creados
+y el workflow de despliegue está desactivado.
+
+| Pieza | Qué es |
+|---|---|
+| `azure.yaml` + `infra/` | Infraestructura como código generada con `azd infra gen` (Bicep): Container Apps + registro de imágenes, **Azure SQL** (oferta gratuita, serverless con auto-pausa, solo autenticación Entra ID) y Redis como contenedor (demo). |
+| `src/MasterNet.AppHost/AppHost.cs` | En modo publicación usa Azure SQL y Container Apps; en local no cambia nada. `api`, `ratingservice` y `client` escalan a cero. |
+| `src/MasterNet.Client/Dockerfile` | El cliente Blazor WebAssembly se publica como contenedor nginx; la URL de la API se inyecta al arrancar (`API_URL`). |
+| `.github/workflows/deploy.yml` | Despliegue con OIDC federado (sin secretos en GitHub). Corre los tests antes de desplegar. Desactivado. |
+
+Para regenerar la infraestructura después de cambiar el AppHost: `azd infra gen --force`.
+
+### Activar el despliegue a Azure
+
+Hoy no es un paso para "dar clic": falta una pieza. Orden previsto:
+
+1. Instalar `azd` y la CLI de Azure, e iniciar sesión (`azd auth login`). Hace falta poder crear una identidad federada en Entra ID y asignar roles en la suscripción.
+2. Resolver las **migraciones**: en Azure no corre el worker del AppHost. El paso "Migraciones" de `deploy.yml` falla a propósito hasta que se implemente
+   (script idempotente o bundle de EF Core; el acceso del runner a Azure SQL y la coincidencia de la migración con el modelo están pendientes, ver [ADR 0005](docs/adr/0005-estrategia-de-migraciones.md)).
+3. Decidir cómo se crea el **primer administrador**: el seed de usuarios solo corre en Development.
+4. Elegir región y nombre de entorno, y ejecutar `azd pipeline config` (crea la credencial federada y las variables `AZURE_*` del repositorio; si ofrece generar su propio workflow, no lo sobrescribas).
+5. Activar el workflow: `gh variable set DEPLOY_TO_AZURE --body true` y lanzar **Deploy** a mano. Cuando funcione, descomentar el disparador `push` de `deploy.yml`.
+
+Costos: Azure SQL gratuito con auto-pausa, Container Apps escalando a cero y un registro de contenedores; es barato pero no gratis (Redis siempre encendido).
+Para borrarlo todo: `azd down`.
 
 ## Documentación
 
@@ -172,14 +205,14 @@ No hay secretos versionados. En desarrollo se guardan en user-secrets (los gener
 - **CORS:** hoy permite cualquier origen; restringirlo al dominio del cliente.
 - **Base de datos:** el script actual **borra y recrea** la base en cada arranque. En producción usar un script idempotente o un bundle de EF Core ([ADR 0005](docs/adr/0005-estrategia-de-migraciones.md)) y Azure SQL ([ADR 0007](docs/adr/0007-sql-server-local-y-azure-sql.md)).
 - **Usuarios:** el seed de usuarios de prueba solo corre en Development; en producción el primer administrador debe aprovisionarse por otro camino.
-- **Health checks:** exponer `/alive` y `/health` solo para las probes y sin detalle ([ADR 0003](docs/adr/0003-health-checks-liveness-y-readiness.md)); retirar los endpoints de demo.
+- **Health checks:** ya se exponen fuera de Development solo con `HealthChecks:Expose` y sin detalle, y los endpoints de demo `make-healthy`/`make-unhealthy` responden 404 ([ADR 0003](docs/adr/0003-health-checks-liveness-y-readiness.md)); queda proteger los de demo del curso (`/Demo/...`) si se publican.
 - **Secretos:** parámetros del despliegue y Managed Identity en lugar de user-secrets; rotar el `TokenKey` que quedó en el primer commit.
 - **Redis:** el contenedor pierde su estado; para algo más que una demo, un servicio administrado.
 - **Observabilidad:** activar el exportador de Azure Monitor / Application Insights y registrar las fuentes de los workers de migración ([ADR 0002](docs/adr/0002-observabilidad-opentelemetry.md)).
 
 ## Roadmap
 
-- 🚧 **Siguiente:** CI/CD con GitHub Actions (OIDC federado) y despliegue a Azure Container Apps con `azd` (Azure SQL serverless).
+- 🚧 **Siguiente:** activar el despliegue a Azure Container Apps (infraestructura y workflow ya preparados; faltan las migraciones y el primer administrador, ver "Despliegue a Azure").
 - Mensajería: publicar `CourseChanged` con RabbitMQ o Azure Service Bus y transactional outbox.
 - gRPC para la comunicación interna entre servicios.
 - Integración opcional con Azure AI Foundry en C#.
