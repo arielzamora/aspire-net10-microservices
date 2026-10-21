@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libs\Core.Mappy\Core.Mappy.csproj" />
+    <ProjectReference Include="..\..\libs\Core.MediatOR\Core.MediatOR.csproj" />
+    <ProjectReference Include="..\MasterNet.Domain\MasterNet.Domain.csproj" />
+    <ProjectReference Include="..\MasterNet.Persistence\MasterNet.Persistence.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="MasterNet.Application.UnitTests" />
+	</ItemGroup>
+	
+	
+</Project>

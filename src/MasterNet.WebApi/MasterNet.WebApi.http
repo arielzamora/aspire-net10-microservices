@@ -1,0 +1,148 @@
+@MasterNet.WebApi_HostAddress = http://localhost:5001
+
+############################################
+# AccountController
+############################################
+
+# @name register
+POST {{MasterNet.WebApi_HostAddress}}/api/account/register
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+userName=azamora&email=ariel.zamora%40gmail.com&fullName=Ariel%20Zamora&password=Pasword1234%24
+
+###
+
+# @name Login
+POST {{MasterNet.WebApi_HostAddress}}/api/account/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "ariel.zamora@gmail.com",
+  "password": "Pasword1234$"
+}
+
+###
+
+@bearerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImF6YW1vcmEiLCJuYW1laWQiOiI3OTE2MWY0ZS01ODk0LTQ2ZDUtODE4Ni04YTI4ZTNlMzlhMzIiLCJlbWFpbCI6ImFyaWVsLnphbW9yYUBnbWFpbC5jb20iLCJQT0xJQ0lFUyI6WyJDT1VSU0VfUkVBRCIsIklOU1RSVUNUT1JfUkVBRCIsIlJBVElOR19SRUFEIiwiUkFUSU5HX0NSRUFURSJdLCJuYmYiOjE3OTI1MjAwMjgsImV4cCI6MTc5MzEyNDgyOCwiaWF0IjoxNzkyNTIwMDI4fQ.Gya3w8UWMAHBwak3z7I3zfzp3Dyu0a2bz8CzuE5WGtg
+
+###
+
+# Me (token required)
+GET {{MasterNet.WebApi_HostAddress}}/api/account/me
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+###
+
+############################################
+# CoursesController
+############################################
+
+# List/Pagination (AllowAnonymous)
+GET {{MasterNet.WebApi_HostAddress}}/api/courses
+Accept: application/json
+
+###
+
+# List with filters
+GET {{MasterNet.WebApi_HostAddress}}/api/courses?title=aspnet&description=core&pageNumber=1&pageSize=10&orderBy=Title&orderAsc=true
+Accept: application/json
+
+###
+
+# Second page
+GET {{MasterNet.WebApi_HostAddress}}/api/courses?pageNumber=2&pageSize=5
+Accept: application/json
+
+###
+
+# Create Course (FromForm x-www-form-urlencoded) - requires Policy COURSE_WRITE
+POST {{MasterNet.WebApi_HostAddress}}/api/courses
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+title=Course%20{{$randomInt}}&description=Test%20description
+
+###
+
+# Define a course ID to test GET/PUT/DELETE
+@courseId = 10296449-09a9-4f9e-9f51-fff7606db58b
+
+# GET by Id (AllowAnonymous)
+GET {{MasterNet.WebApi_HostAddress}}/api/courses/{{courseId}}
+Accept: application/json
+
+###
+
+# CSV report (AllowAnonymous)
+GET {{MasterNet.WebApi_HostAddress}}/api/courses/report
+Accept: text/csv
+
+###
+
+# Update Course (JSON) - requires Policy COURSE_UPDATE
+PUT {{MasterNet.WebApi_HostAddress}}/api/courses/{{courseId}}
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "title": "Updated title",
+  "description": "Updated description",
+  "publishedAt": "2025-09-16T00:00:00Z"
+}
+
+###
+
+# Delete Course - requires Policy COURSE_DELETE
+DELETE {{MasterNet.WebApi_HostAddress}}/api/courses/{{courseId}}
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+###
+
+############################################
+# DeviceController
+############################################
+
+# Search devices by name (AllowAnonymous)
+GET {{MasterNet.WebApi_HostAddress}}/api/devices?request=iphone
+Accept: application/json
+
+###
+
+############################################
+# InstructorsController
+############################################
+
+# Instructors list/pagination (AllowAnonymous)
+GET {{MasterNet.WebApi_HostAddress}}/api/instructors?pageNumber=1&pageSize=10
+Accept: application/json
+
+###
+
+# Create instructor (JSON)
+POST {{MasterNet.WebApi_HostAddress}}/api/instructors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe{{$randomInt}}@mail.com"
+}
+
+###
+
+# enviar solicitud
+POST {{MasterNet.WebApi_HostAddress}}/api/ratings
+Content-Type : application/json
+Accept : application/json
+
+{
+  "id": "c3333333-3333-3333-3333-333333333333",
+  "rating":5
+}

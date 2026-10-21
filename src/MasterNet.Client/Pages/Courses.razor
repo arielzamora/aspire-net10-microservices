@@ -1,0 +1,205 @@
+@page "/courses"
+@inject ICoursesService CoursesService
+
+<PageTitle>Courses</PageTitle>
+
+<h1 class="mb-3">Courses</h1>
+
+<EditForm Model="_filters" OnValidSubmit="ApplyFiltersAsync" class="card card-body mb-4 shadow-sm">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label" for="titleFilter">Title</label>
+            <InputText @bind-Value="_filters.Title" id="titleFilter" class="form-control" placeholder="Search by title" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="descriptionFilter">Description</label>
+            <InputText @bind-Value="_filters.Description" id="descriptionFilter" class="form-control" placeholder="Search by description" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="pageSizeSelect">Page size</label>
+            <select id="pageSizeSelect"
+                    class="form-select"
+                    @bind="_filters.PageSize"
+                    @bind:after="OnPageSizeChangedAsync"
+                    disabled="@_isLoading">
+                @foreach (var size in _pageSizeOptions)
+                {
+                    <option value="@size">@size</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2 align-items-end">
+            <button class="btn btn-primary flex-fill" type="submit" disabled="@_isLoading">
+                Apply
+            </button>
+            <button class="btn btn-outline-secondary flex-fill" type="button" @onclick="ResetFiltersAsync" disabled="@_isLoading">
+                Reset
+            </button>
+        </div>
+    </div>
+</EditForm>
+
+@if (_isLoading)
+{
+    <div class="alert alert-info" role="status">
+        Loading courses...
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (!HasCourses)
+{
+    <div class="alert alert-warning" role="status">
+        No courses found with the selected criteria.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Published</th>
+                    <th scope="col">Instructors</th>
+                    <th scope="col">Ratings</th>
+                    <th scope="col">Prices</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in _courses!.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@course.Title</div>
+                            <div class="text-muted small">@course.Description</div>
+                        </td>
+                        <td>@FormatPublishedDate(course.PublishedAt)</td>
+                        <td>@course.Instructors.Count</td>
+                        <td>@course.Score</td>
+                        <td>@course.Prices.Count</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mt-3">
+        <div>
+            @{
+                var range = GetResultRange();
+            }
+            Showing @range.from-@range.to of @_courses!.TotalCount courses
+        </div>
+        <div class="btn-group" role="group" aria-label="Pagination">
+            <button class="btn btn-outline-secondary"
+                    @onclick="async () => await ChangePageAsync(1)"
+                    disabled="@(!CanGoPrevious || _isLoading)">
+                « First
+            </button>
+            <button class="btn btn-outline-secondary"
+                    @onclick="async () => await ChangePageAsync(_courses!.CurrentPage - 1)"
+                    disabled="@(!CanGoPrevious || _isLoading)">
+                ‹ Prev
+            </button>
+            <button class="btn btn-outline-secondary"
+                    @onclick="async () => await ChangePageAsync(_courses!.CurrentPage + 1)"
+                    disabled="@(!CanGoNext || _isLoading)">
+                Next ›
+            </button>
+            <button class="btn btn-outline-secondary"
+                    @onclick="async () => await ChangePageAsync(_courses!.TotalPages)"
+                    disabled="@(!CanGoNext || _isLoading)">
+                Last »
+            </button>
+        </div>
+        <div>
+            Page @_courses!.CurrentPage of @_courses!.TotalPages
+        </div>
+    </div>
+}
+
+@code {
+    private readonly int[] _pageSizeOptions = new[] { 5, 10, 20, 50 };
+    private CoursesQueryParameters _filters = new() { PageSize = 10 };
+    private PagedList<CourseResponse>? _courses;
+    private bool _isLoading;
+    private string? _errorMessage;
+
+    private bool HasCourses => _courses is not null && _courses.Items.Count > 0;
+    private bool CanGoPrevious => _courses is not null && _courses.CurrentPage > 1;
+    private bool CanGoNext => _courses is not null && _courses.CurrentPage < Math.Max(1, _courses.TotalPages);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCoursesAsync();
+    }
+
+    private async Task ApplyFiltersAsync()
+    {
+        _filters.PageNumber = 1;
+        await LoadCoursesAsync();
+    }
+
+    private async Task ResetFiltersAsync()
+    {
+        _filters = new CoursesQueryParameters();
+        await LoadCoursesAsync();
+    }
+
+    private async Task OnPageSizeChangedAsync()
+    {
+        _filters.PageNumber = 1;
+        await LoadCoursesAsync();
+    }
+
+    private async Task ChangePageAsync(int targetPage)
+    {
+        if (_courses is null || targetPage == _courses.CurrentPage || targetPage < 1 || targetPage > Math.Max(1, _courses.TotalPages))
+        {
+            return;
+        }
+
+        _filters.PageNumber = targetPage;
+        await LoadCoursesAsync();
+    }
+
+    private async Task LoadCoursesAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            _courses = await CoursesService.GetAsync(_filters);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Unable to load courses at this time.";
+            Console.Error.WriteLine(ex);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private (int from, int to) GetResultRange()
+    {
+        if (_courses is null || _courses.Items.Count == 0)
+        {
+            return (0, 0);
+        }
+
+        var from = ((_courses.CurrentPage - 1) * _courses.PageSize) + 1;
+        var to = from + _courses.Items.Count - 1;
+        return (from, to);
+    }
+
+    private static string FormatPublishedDate(DateTime? value)
+        => value is null ? "—" : value.Value.ToLocalTime().ToString("yyyy-MM-dd");
+}

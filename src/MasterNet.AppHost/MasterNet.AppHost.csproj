@@ -1,0 +1,35 @@
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.6.1">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>d6d966a9-9e54-4e5b-b575-283a27a53478</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MasterNet.Client\MasterNet.Client.csproj" />
+    <ProjectReference Include="..\MasterNet.MigrationService\MasterNet.MigrationService.csproj" />
+    <ProjectReference Include="..\MasterNet.MigrationSqlService\MasterNet.MigrationSqlService.csproj" />
+    <ProjectReference Include="..\MasterNet.RatingService\MasterNet.RatingService.csproj" />
+    <ProjectReference Include="..\MasterNet.WebApi\MasterNet.WebApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.6.1" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="13.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.13" />
+    <PackageReference Include="Aspire.Hosting" Version="13.6.1" />
+    <PackageReference Include="MessagePack" Version="3.1.12" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.13" />
+  </ItemGroup>
+
+</Project>

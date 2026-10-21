@@ -1,0 +1,402 @@
+[
+  {
+    "id": "bc09ef23-1045-451d-a6cf-b1600cc37bda",
+    "deviceName": "iPhone 1"
+  },
+  {
+    "id": "915540a0-310b-422e-9981-c036a519fafa",
+    "deviceName": "iPhone 2"
+  },
+  {
+    "id": "35bd564e-c3ca-4c9a-8876-3a4cc0276fac",
+    "deviceName": "iPhone 3"
+  },
+  {
+    "id": "f9a51d05-c131-478e-aad7-85cfca0623df",
+    "deviceName": "iPhone 4"
+  },
+  {
+    "id": "f8792bce-3e7b-4113-9034-c49ffafa990f",
+    "deviceName": "iPhone 5"
+  },
+  {
+    "id": "cda69908-51b9-4278-aaff-fc8f258212ca",
+    "deviceName": "iPhone 6"
+  },
+  {
+    "id": "46dfaa09-609c-4142-8227-142896c07845",
+    "deviceName": "iPhone 7"
+  },
+  {
+    "id": "1139a0a8-4f55-42f6-96a3-947e9fa0ebac",
+    "deviceName": "iPhone 8"
+  },
+  {
+    "id": "8166402c-c59a-48e8-94a5-6c164dcdef08",
+    "deviceName": "iPhone 9"
+  },
+  {
+    "id": "0ba2345e-b6dc-4f16-9cb6-b0e7f5c4b73a",
+    "deviceName": "iPhone 10"
+  },
+  {
+    "id": "685f2d1b-ae64-49c2-a0b0-4ec98db31c34",
+    "deviceName": "iPhone 11"
+  },
+  {
+    "id": "82540b4f-5152-4ba7-9e9a-9a2276283cf3",
+    "deviceName": "iPhone 12"
+  },
+  {
+    "id": "5dfe8b29-a8ef-4be9-9711-673aba167bd1",
+    "deviceName": "iPhone 13"
+  },
+  {
+    "id": "f20195ac-bdf6-46c6-880d-7cbafeca2232",
+    "deviceName": "iPhone 14"
+  },
+  {
+    "id": "af9188b8-5ad4-45a8-a230-0db6d8b8b774",
+    "deviceName": "iPhone 15"
+  },
+  {
+    "id": "af187a7f-4187-4630-b65e-481043d55896",
+    "deviceName": "iPhone 16"
+  },
+  {
+    "id": "13137f3b-9285-4683-af8f-d8cee9cdb7fe",
+    "deviceName": "iPhone 17"
+  },
+  {
+    "id": "db36a324-113e-4f6e-a4c7-d8e1a54cc2c9",
+    "deviceName": "iPhone 18"
+  },
+  {
+    "id": "1c1a4e83-1cf1-4253-b6e0-f4113407f8e2",
+    "deviceName": "iPhone 19"
+  },
+  {
+    "id": "adda3188-8672-4665-9c75-d5182118e3a6",
+    "deviceName": "iPhone 20"
+  },
+  {
+    "id": "255670d7-4ea6-4726-9f6e-7662f499d5cd",
+    "deviceName": "iPad 1"
+  },
+  {
+    "id": "d5dcae99-184d-4ddb-8e31-47cd79ff39e9",
+    "deviceName": "iPad 2"
+  },
+  {
+    "id": "1cdf63c4-97dc-4752-8c55-d01d19766b40",
+    "deviceName": "iPad 3"
+  },
+  {
+    "id": "146e08fd-d3a0-497b-bca4-0ab8a27f4aab",
+    "deviceName": "iPad 4"
+  },
+  {
+    "id": "b1e4da5a-595a-4d03-a333-9cfd7b0481fb",
+    "deviceName": "iPad 5"
+  },
+  {
+    "id": "1cc7c74c-2b41-444e-8840-a1dd0c525d27",
+    "deviceName": "iPad 6"
+  },
+  {
+    "id": "0101ad59-ee8a-4721-8a08-aa41188207ed",
+    "deviceName": "iPad 7"
+  },
+  {
+    "id": "4e71fa6c-3023-45dd-b677-6a53f914dae0",
+    "deviceName": "iPad 8"
+  },
+  {
+    "id": "fbe5f69d-fbe4-4064-baf8-63cf97ced22d",
+    "deviceName": "iPad 9"
+  },
+  {
+    "id": "f24d58fa-48b0-42c2-b3f8-4f680af38b54",
+    "deviceName": "iPad 10"
+  },
+  {
+    "id": "abc2a50f-d4a4-45b4-a2f9-c62997a67f76",
+    "deviceName": "iPad 11"
+  },
+  {
+    "id": "36528d54-5a0b-421f-836b-478815607c4f",
+    "deviceName": "iPad 12"
+  },
+  {
+    "id": "fe19b26b-b5f0-4cfd-a454-666a5f3c71b2",
+    "deviceName": "iPad 13"
+  },
+  {
+    "id": "afa4043d-9c64-4f37-ad07-d32c764b46a3",
+    "deviceName": "iPad 14"
+  },
+  {
+    "id": "ac86f446-bd56-4f15-8629-93b439040ced",
+    "deviceName": "iPad 15"
+  },
+  {
+    "id": "280aef17-70a0-47f2-acd4-e49d5d4ca591",
+    "deviceName": "Tablet 1"
+  },
+  {
+    "id": "7627ad5c-6053-4522-bd78-7a18fc7f8ca1",
+    "deviceName": "Tablet 2"
+  },
+  {
+    "id": "e87b3e70-88fd-4887-8f1e-6044c3158d7b",
+    "deviceName": "Tablet 3"
+  },
+  {
+    "id": "cee3f914-12fc-4c82-8335-da2e7656f0cb",
+    "deviceName": "Tablet 4"
+  },
+  {
+    "id": "4c286ea8-ceba-44cf-b260-0d4c14bcd7d6",
+    "deviceName": "Tablet 5"
+  },
+  {
+    "id": "10dce492-d026-4702-aee9-64919a4c01a2",
+    "deviceName": "Tablet 6"
+  },
+  {
+    "id": "3d7b2e1b-fc3e-4faa-a267-786d7aaad83a",
+    "deviceName": "Tablet 7"
+  },
+  {
+    "id": "e1fbd753-b611-4d74-b822-df57af56eca3",
+    "deviceName": "Tablet 8"
+  },
+  {
+    "id": "238f5979-855d-4ed0-9b10-e5e6c0ef8ad6",
+    "deviceName": "Tablet 9"
+  },
+  {
+    "id": "23f4bd7a-baca-4aa3-8397-8e2b053190d8",
+    "deviceName": "Tablet 10"
+  },
+  {
+    "id": "d1f868b2-38bc-4946-aeb4-8eb3beb991f8",
+    "deviceName": "Tablet 11"
+  },
+  {
+    "id": "3bb9d1ba-d41d-4d54-adb8-172837ad7f05",
+    "deviceName": "Tablet 12"
+  },
+  {
+    "id": "b6e57fc3-e3d5-43fd-ad2b-21e23c1346a2",
+    "deviceName": "Tablet 13"
+  },
+  {
+    "id": "ba74fcad-5e7f-47bf-9589-0e815fe3feae",
+    "deviceName": "Tablet 14"
+  },
+  {
+    "id": "4af93aad-b99a-47a5-8e59-47d9e04bbec5",
+    "deviceName": "Tablet 15"
+  },
+  {
+    "id": "c27d61fb-81df-4783-9676-83b7c542d438",
+    "deviceName": "TV 1"
+  },
+  {
+    "id": "2625c5e3-999c-4b4f-a6cd-85979bdf5ce2",
+    "deviceName": "TV 2"
+  },
+  {
+    "id": "97c414da-a2f9-4dfb-9bd8-33f707657308",
+    "deviceName": "TV 3"
+  },
+  {
+    "id": "43756665-0ea8-4a52-91e3-2ae13a31aad8",
+    "deviceName": "TV 4"
+  },
+  {
+    "id": "cb80ae85-aa8a-466b-98cb-2198d5e2b498",
+    "deviceName": "TV 5"
+  },
+  {
+    "id": "f2e8fc23-0b2b-4485-a097-8775350fc54d",
+    "deviceName": "TV 6"
+  },
+  {
+    "id": "6d59a5c6-1845-4534-9f92-8144c069b2ad",
+    "deviceName": "TV 7"
+  },
+  {
+    "id": "62cf9c07-c793-4f8e-ab23-ba990aebe171",
+    "deviceName": "TV 8"
+  },
+  {
+    "id": "3ff089b2-d37f-4422-be76-c13e9531a8ca",
+    "deviceName": "TV 9"
+  },
+  {
+    "id": "b22abf7c-0d7e-41ac-bfd4-a039c2cf97df",
+    "deviceName": "TV 10"
+  },
+  {
+    "id": "03e1e64f-eb64-4499-99e4-74968dc0b600",
+    "deviceName": "TV 11"
+  },
+  {
+    "id": "4d4a8204-b6b9-40f1-a8af-aedceca54a7c",
+    "deviceName": "TV 12"
+  },
+  {
+    "id": "e71df153-5a73-4f90-aa71-8efed8ad6d18",
+    "deviceName": "TV 13"
+  },
+  {
+    "id": "7306ac3e-fdab-4f1e-9963-1c60564ba69e",
+    "deviceName": "TV 14"
+  },
+  {
+    "id": "90407920-8e3b-4bec-955f-b98075fa1fb1",
+    "deviceName": "TV 15"
+  },
+  {
+    "id": "796c4ae7-51e7-4399-bdc7-1d5085ea108a",
+    "deviceName": "Laptop 1"
+  },
+  {
+    "id": "4b3211a3-44eb-4dad-8c96-d8f910b0a4da",
+    "deviceName": "Laptop 2"
+  },
+  {
+    "id": "a9d24a12-105f-4602-90a0-036e707be238",
+    "deviceName": "Laptop 3"
+  },
+  {
+    "id": "ef7e0107-6d3b-42d3-b217-af20ad3067ca",
+    "deviceName": "Laptop 4"
+  },
+  {
+    "id": "300de81e-d64e-48be-b356-f5b5176ffdd1",
+    "deviceName": "Laptop 5"
+  },
+  {
+    "id": "cb4b74fd-a5ab-4f6c-a6f4-17ba56801bc5",
+    "deviceName": "Laptop 6"
+  },
+  {
+    "id": "d90e5bb6-5cac-4ebc-8c21-80b4cef4dae6",
+    "deviceName": "Laptop 7"
+  },
+  {
+    "id": "d833b86f-dcf7-4c15-adec-dbc27480c6a8",
+    "deviceName": "Laptop 8"
+  },
+  {
+    "id": "ec48e7c1-a698-410a-a690-be9f817a8833",
+    "deviceName": "Laptop 9"
+  },
+  {
+    "id": "34561a1b-9a78-414a-984b-6caf6c696b34",
+    "deviceName": "Laptop 10"
+  },
+  {
+    "id": "868d09f7-4f37-4503-9274-661334e337ab",
+    "deviceName": "Laptop 11"
+  },
+  {
+    "id": "0ccb270b-450f-4fba-8dcd-50f1c75060d8",
+    "deviceName": "Laptop 12"
+  },
+  {
+    "id": "816b246e-a858-4b98-baab-c9824ad1d388",
+    "deviceName": "Laptop 13"
+  },
+  {
+    "id": "63e713cb-ac47-4047-b93b-a9d744d0f247",
+    "deviceName": "Laptop 14"
+  },
+  {
+    "id": "4184f41c-4a11-4c1d-8bfb-9b45992fbe75",
+    "deviceName": "Laptop 15"
+  },
+  {
+    "id": "c6fc2a23-6e02-4cd6-8edf-706f7f29cf07",
+    "deviceName": "Smartwatch 1"
+  },
+  {
+    "id": "c5cd7e8c-7a7e-4673-baf9-f3a4c4ee5c93",
+    "deviceName": "Smartwatch 2"
+  },
+  {
+    "id": "03f5d33e-057d-4867-a298-5e3de40b62c5",
+    "deviceName": "Smartwatch 3"
+  },
+  {
+    "id": "5bafac45-90fb-4c0f-a695-67d0baf9ef88",
+    "deviceName": "Smartwatch 4"
+  },
+  {
+    "id": "8174e5d5-51c0-464a-9db6-cea9c3219c27",
+    "deviceName": "Smartwatch 5"
+  },
+  {
+    "id": "0a463683-65d4-4ea4-9d95-5a958221e76f",
+    "deviceName": "Smartwatch 6"
+  },
+  {
+    "id": "102d3a6d-53ad-4e57-a7f3-850f48db8983",
+    "deviceName": "Smartwatch 7"
+  },
+  {
+    "id": "ef58c8ad-385d-4214-99bd-cf51f93952a5",
+    "deviceName": "Smartwatch 8"
+  },
+  {
+    "id": "8d746de2-a530-46b1-b45d-4124b58cd3f6",
+    "deviceName": "Smartwatch 9"
+  },
+  {
+    "id": "3e3ccf85-4815-4ecb-833a-02a649e83a51",
+    "deviceName": "Smartwatch 10"
+  },
+  {
+    "id": "d88b845b-5e39-4a4e-965d-765bb3fcf297",
+    "deviceName": "Speaker 1"
+  },
+  {
+    "id": "a8ac886f-3cb1-4d2f-b4c9-a413894b7f7e",
+    "deviceName": "Speaker 2"
+  },
+  {
+    "id": "f86e4417-d65f-4b78-9ed8-d5f8a71aeb70",
+    "deviceName": "Speaker 3"
+  },
+  {
+    "id": "76abefbf-dffd-49d3-a79d-7a7fc238dbb5",
+    "deviceName": "Speaker 4"
+  },
+  {
+    "id": "f1bbbc08-3007-429d-89c3-fcd5183ba16c",
+    "deviceName": "Speaker 5"
+  },
+  {
+    "id": "7fd3a37b-5d31-4e59-b784-19df0484ae0b",
+    "deviceName": "Speaker 6"
+  },
+  {
+    "id": "33f7b287-0514-4751-a28c-ed18507dd0a8",
+    "deviceName": "Speaker 7"
+  },
+  {
+    "id": "590c2283-934b-42d9-9d5d-12bfcc2ab314",
+    "deviceName": "Speaker 8"
+  },
+  {
+    "id": "3f77d9a8-3e08-4ac8-a006-a304623f3db6",
+    "deviceName": "Speaker 9"
+  },
+  {
+    "id": "4e55e493-74ce-44ca-9c15-f407ce06bdba",
+    "deviceName": "Speaker 10"
+  }
+]
