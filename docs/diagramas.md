@@ -42,7 +42,7 @@ flowchart TB
     browser -->|HTTP| client
     client -->|"HTTP + Bearer (Refit)"| api
     api -->|EF Core| sql
-    api -->|"HTTP · service discovery<br/>https+http://ratingservice"| rating
+    api -->|"HTTP · service discovery<br/>http://ratingservice"| rating
     rating -->|StackExchange.Redis| redis
     migration -->|"CreateDatabaseAndSeed.sql"| sql
     api -. "espera migrationSql<br/>(WaitForCompletion)" .-> migration

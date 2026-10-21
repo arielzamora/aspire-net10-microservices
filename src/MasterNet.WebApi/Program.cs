@@ -41,7 +41,7 @@ builder.Services.AddScoped(typeof(IReportService<>), typeof(ReportService<>));
 builder.AddServiceDefaults();
 
 builder.Services.AddHttpClient<IRatingServiceClient,RatingServiceHttpClient>(
-    x => x.BaseAddress = new Uri("https+http://ratingservice"));
+    x => x.BaseAddress = new Uri("http://ratingservice"));
 
 builder.Services.AddHttpContextAccessor();
 IEdmModel GetEdmModel()

@@ -20,7 +20,7 @@ Se usa .NET Aspire. El `MasterNet.AppHost` declara los recursos y sus dependenci
 
 * SQL Server (`AddSqlServer`) y Redis (`AddRedis`) como contenedores persistentes.
 * `api`, `client`, `ratingservice` y `migrationSql` como proyectos, con `WithReference`, `WaitFor` y `WaitForCompletion`.
-* Service discovery: la API llama al servicio de ratings como `https+http://ratingservice`, sin URLs fijas.
+* Service discovery: la API llama al servicio de ratings como `http://ratingservice`, sin URLs fijas.
 * Secretos como parámetros (ver [0008](0008-gestion-de-secretos.md)).
 
 `MasterNet.ServiceDefaults` aporta a cada servicio OpenTelemetry, health checks, resiliencia y service discovery
